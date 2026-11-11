@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wasiat & Ahli Waris - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
+  <div id="main-nav"></div>
+
+  <main class="max-w-5xl mx-auto px-4 py-10 flex-1 w-full space-y-10">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Wasiat & Ahli Waris</h1>
+      <a href="create-will.html" class="gold-btn px-4 py-2 text-sm font-semibold">+ Tulis Wasiat</a>
+    </div>
+
+    <div id="wills-alert" class="hidden p-3 rounded text-sm"></div>
+
+    <!-- Wasiat -->
+    <section>
+      <h2 class="text-lg font-bold font-cinzel text-willGold mb-3">Daftar Wasiat</h2>
+      <div id="assets-list" class="space-y-4">
+        <div class="will-card p-6 rounded-lg text-sm text-slate-500">Memuat...</div>
+      </div>
+    </section>
+
+    <!-- Ahli waris -->
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="will-card p-6 rounded-lg lg:col-span-2">
+        <h2 class="text-lg font-bold font-cinzel text-willGold mb-4">Tambah Ahli Waris</h2>
+        <form id="add-ben-form" onsubmit="handleAddBeneficiary(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-200 mb-1">Username atau Email</label>
+            <input type="text" id="ben-identifier" required class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-willGold" placeholder="ahliwaris">
+            <span class="text-xs text-slate-500">Ahli waris harus sudah punya akun.</span>
+          </div>
+          <div>
+            <label class="block text-sm text-slate-200 mb-1">Hubungan</label>
+            <input type="text" id="ben-relation" class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Anak, Istri, Saudara...">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-200 mb-1">Foto Wajah Ahli Waris</label>
+            <input type="file" id="ben-face-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200">
+            <span class="text-xs text-slate-500">Dipakai untuk memastikan penerima adalah orang yang tepat.</span>
+          </div>
+          <button type="submit" id="btn-add-ben" class="gold-btn w-full py-2.5 text-sm font-semibold">Tambah</button>
+        </form>
+      </div>
+
+      <div class="will-card p-6 rounded-lg lg:col-span-3">
+        <h2 class="text-lg font-bold font-cinzel text-willGold mb-4">Daftar Ahli Waris</h2>
+        <div id="beneficiaries-list" class="space-y-3">
+          <div class="text-sm text-slate-500">Memuat...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/my-wills.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
+  <div id="main-nav"></div>
+
+  <main class="max-w-4xl mx-auto px-4 py-10 flex-1 w-full">
+    <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-8">
+      Halo, <span id="user-display-name" class="text-willGold">Pengguna</span>
+    </h1>
+
+    <!-- Pewaris -->
+    <div id="owner-menu" class="hidden grid grid-cols-1 md:grid-cols-3 gap-5">
+      <a href="create-will.html" class="will-card p-6 rounded-lg hover:border-willGold transition block">
+        <div class="text-willGold font-semibold mb-1">+ Tulis Wasiat</div>
+        <div class="text-sm text-slate-400">Buat pesan atau unggah dokumen baru.</div>
+      </a>
+      <a href="my-wills.html" class="will-card p-6 rounded-lg hover:border-willGold transition block">
+        <div class="text-willGold font-semibold mb-1">Wasiat & Ahli Waris</div>
+        <div class="text-sm text-slate-400">Lihat wasiat dan kelola penerima.</div>
+      </a>
+      <a href="usb-setup.html" class="will-card p-6 rounded-lg hover:border-willGold transition block">
+        <div class="text-willGold font-semibold mb-1">Flashdisk</div>
+        <div class="text-sm text-slate-400">Daftarkan flashdisk sebagai kunci akses.</div>
+      </a>
+    </div>
+
+    <!-- Ahli waris -->
+    <div id="beneficiary-menu" class="hidden">
+      <a href="access-key.html" class="will-card p-6 rounded-lg hover:border-willGold transition block max-w-md">
+        <div class="text-willGold font-semibold mb-1">Klaim Warisan</div>
+        <div class="text-sm text-slate-400">Unggah kartu akses dan verifikasi wajah untuk membuka wasiat.</div>
+      </a>
+    </div>
+  </main>
+
+  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

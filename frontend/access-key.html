@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaim Warisan - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
+  <div id="main-nav"></div>
+
+  <main class="max-w-2xl mx-auto px-4 py-10 flex-1 w-full">
+    <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Klaim Warisan</h1>
+    <p class="text-sm text-slate-400 mb-6">Unggah kartu akses dari pewaris dan verifikasi wajah Anda untuk membuka wasiat.</p>
+
+    <div id="guest-notice" class="hidden mb-5 p-3 rounded text-sm bg-amber-950/60 border border-amber-800 text-amber-200">
+      Anda perlu <a href="sign-in.html" class="underline font-semibold">masuk</a> sebagai ahli waris terlebih dahulu.
+    </div>
+    <div id="claim-alert" class="hidden mb-5 p-3 rounded text-sm"></div>
+
+    <div class="will-card rounded-xl p-6">
+      <form id="claim-form" onsubmit="handleClaimSubmission(event)" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-200 mb-2">1. Kartu Akses</label>
+          <input type="file" id="claim-stego-file" accept="image/png" required class="hidden" onchange="onStegoFileSelected(this)">
+          <label for="claim-stego-file" class="block cursor-pointer border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-willGold transition">
+            <span class="text-sm text-slate-300" id="stego-file-label">Klik untuk memilih gambar kartu akses (.png)</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-200 mb-2">2. Foto Wajah Anda</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="border border-slate-700 rounded-lg p-3 bg-slate-900/80">
+              <div class="relative w-full aspect-video bg-black rounded overflow-hidden mb-2">
+                <video id="claim-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <canvas id="claim-canvas" class="hidden"></canvas>
+                <div id="claim-cam-overlay" class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-900/80">Kamera belum aktif</div>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="startClaimCamera()" class="flex-1 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded border border-slate-700">Nyalakan Kamera</button>
+                <button type="button" onclick="captureClaimFace()" class="flex-1 py-1.5 text-xs bg-willGold/20 text-willGold border border-willGold/40 rounded">Ambil Foto</button>
+              </div>
+            </div>
+            <div class="border border-slate-700 rounded-lg p-3 bg-slate-900/80 flex flex-col justify-center">
+              <span class="text-sm text-slate-300 mb-2">Atau unggah foto:</span>
+              <input type="file" id="claim-face-file" accept="image/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200">
+              <div id="face-captured-indicator" class="hidden mt-3 p-2 bg-emerald-950/60 border border-emerald-800 rounded text-xs text-emerald-300 text-center">Foto sudah diambil</div>
+            </div>
+          </div>
+          <input type="hidden" id="claim-face-base64">
+        </div>
+
+        <button type="submit" id="btn-submit-claim" class="gold-btn w-full py-3 text-sm font-semibold">Buka Wasiat</button>
+      </form>
+
+      <div id="claim-success-box" class="hidden mt-8 space-y-4">
+        <div class="p-3 bg-emerald-950/70 border border-emerald-700 rounded-lg text-sm text-emerald-200">
+          Verifikasi berhasil. Berikut wasiat untuk Anda:
+        </div>
+        <div id="decrypted-assets-container" class="space-y-4"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/access-key.js"></script>
+</body>
+</html>

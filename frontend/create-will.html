@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tulis Wasiat - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
+  <div id="main-nav"></div>
+
+  <main class="max-w-2xl mx-auto px-4 py-10 flex-1 w-full">
+    <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Tulis Wasiat Baru</h1>
+    <p class="text-sm text-slate-400 mb-6">Isi data di bawah, lalu Anda akan mendapat kartu akses untuk diberikan kepada ahli waris.</p>
+
+    <div id="create-alert" class="hidden mb-5 p-3 rounded text-sm"></div>
+
+    <div class="will-card rounded-xl p-6">
+      <form id="create-will-form" onsubmit="handleCreateWill(event)" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-200 mb-2">Jenis Wasiat</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center space-x-2 p-3 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold">
+              <input type="radio" name="asset_type" value="message" checked onchange="toggleAssetType('message')">
+              <span class="text-sm">Pesan Teks</span>
+            </label>
+            <label class="flex items-center space-x-2 p-3 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold">
+              <input type="radio" name="asset_type" value="document" onchange="toggleAssetType('document')">
+              <span class="text-sm">Dokumen / File</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-200 mb-2">Judul</label>
+          <input type="text" id="asset-name" required class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Contoh: Pesan untuk keluarga">
+        </div>
+
+        <div id="container-message-input">
+          <label class="block text-sm font-medium text-slate-200 mb-2">Isi Pesan</label>
+          <textarea id="message-content" rows="6" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Tulis pesan Anda di sini..."></textarea>
+        </div>
+
+        <div id="container-document-input" class="hidden">
+          <label class="block text-sm font-medium text-slate-200 mb-2">File Dokumen</label>
+          <input type="file" id="document-file" onchange="updateFileNameDisplay(this)" class="hidden">
+          <label for="document-file" class="block cursor-pointer border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-willGold transition">
+            <span class="text-sm text-slate-300" id="file-label-text">Klik untuk memilih file</span>
+          </label>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium text-slate-200">Untuk Siapa?</label>
+            <a href="my-wills.html" class="text-xs text-willGold hover:underline">+ Tambah ahli waris</a>
+          </div>
+          <div id="beneficiaries-list" class="space-y-1 bg-slate-900/60 p-3 rounded-lg border border-slate-800 max-h-44 overflow-y-auto">
+            <div class="text-sm text-slate-500">Memuat...</div>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-will" class="gold-btn w-full py-3 text-sm font-semibold">Simpan Wasiat</button>
+      </form>
+
+      <div id="success-result" class="hidden mt-6 p-5 bg-slate-900/90 border border-willGold rounded-xl">
+        <h3 class="text-base font-bold text-emerald-400 mb-1">Wasiat berhasil disimpan!</h3>
+        <p class="text-sm text-slate-300 mb-4">Unduh kartu akses (gambar) di bawah ini dan berikan kepada ahli waris. Kartu ini diperlukan saat mereka mengklaim wasiat.</p>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <a id="btn-download-stego" href="#" download class="gold-btn flex-1 py-2.5 text-sm text-center font-semibold">Unduh Kartu Akses</a>
+          <a href="my-wills.html" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-sm text-center">Lihat Daftar Wasiat</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/create-will.js"></script>
+</body>
+</html>

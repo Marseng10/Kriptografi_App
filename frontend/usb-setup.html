@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USB Security Key - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-4xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-willGold/20 pb-6 gap-4">
+      <div>
+        <div class="flex items-center space-x-2">
+          <i data-lucide="usb" class="w-6 h-6 text-emerald-400"></i>
+          <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">USB Hardware Key Manager</h1>
+        </div>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Daftarkan flashdisk fisik sebagai kunci otorisasi lokal untuk USB Launcher aplikasi WARISCRYPT.
+        </p>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="usb-alert" class="hidden p-4 rounded text-xs leading-relaxed"></div>
+
+    <!-- Register New USB Form -->
+    <div class="will-card p-6 md:p-8 rounded-xl space-y-4">
+      <h2 class="text-base font-bold font-cinzel text-willGold">Daftarkan Perangkat Flashdisk Baru</h2>
+      <p class="text-xs text-slate-400">
+        Sistem akan membuat berkas kunci unik <code class="text-willGold">wariscrypt.key</code> yang dapat Anda unduh dan letakkan di root flashdisk Anda.
+      </p>
+
+      <form id="usb-reg-form" onsubmit="handleRegisterUsb(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Label Perangkat</label>
+          <input type="text" id="usb-device-name" required value="Flashdisk Utama Pewaris" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-willGold">
+        </div>
+
+        <button type="submit" id="btn-reg-usb" class="gold-btn w-full py-2.5 text-xs font-bold flex items-center justify-center space-x-2">
+          <i data-lucide="key" class="w-4 h-4"></i>
+          <span>Buat & Unduh Kunci wariscrypt.key</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- How to use Launcher instructions -->
+    <div class="p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
+      <h3 class="text-sm font-bold text-white font-cinzel flex items-center space-x-2">
+        <i data-lucide="help-circle" class="w-4 h-4 text-willGold"></i>
+        <span>Panduan Menjalankan USB Launcher Pendamping</span>
+      </h3>
+      <ol class="list-decimal list-inside text-xs text-slate-300 space-y-2 leading-relaxed">
+        <li>Unduh berkas <span class="font-mono text-willGold">wariscrypt.key</span> di atas.</li>
+        <li>Salin berkas tersebut langsung ke dalam flashdisk Anda (misal drive <code class="text-slate-100">E:\wariscrypt.key</code>).</li>
+        <li>Jalankan pendamping launcher di terminal / folder proyek:
+          <pre class="mt-1 p-2 bg-black rounded font-mono text-emerald-400 text-xs">python usb_launcher/usb_launcher.py</pre>
+        </li>
+        <li>Ketika flashdisk terdeteksi, launcher akan memverifikasi fingerprint ke API backend dan otomatis membuka browser web Anda ke portal WARISCRYPT!</li>
+      </ol>
+    </div>
+
+    <!-- Registered Devices Table -->
+    <div class="will-card p-6 rounded-xl">
+      <h3 class="text-sm font-bold text-white font-cinzel mb-4">Daftar Perangkat USB Terdaftar</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800">
+              <th class="py-2.5 px-3">Nama Perangkat</th>
+              <th class="py-2.5 px-3">Fingerprint Hash</th>
+              <th class="py-2.5 px-3">Status</th>
+              <th class="py-2.5 px-3">Terakhir Digunakan</th>
+              <th class="py-2.5 px-3 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="usb-devices-tbody" class="divide-y divide-slate-800">
+            <tr>
+              <td colspan="5" class="py-6 text-center text-slate-500">Memuat perangkat USB...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/usb-setup.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

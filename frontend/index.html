@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WARISCRYPT - Wasiat Digital Aman</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
+  <div id="main-nav"></div>
+
+  <main class="flex-1">
+    <section class="py-20 md:py-28 border-b border-willGold/20">
+      <div class="max-w-3xl mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold font-cinzel mb-5 gold-gradient-text leading-tight">
+          Wariskan Pesan & Dokumen Penting dengan Aman
+        </h1>
+        <p class="text-base md:text-lg text-slate-300 mb-10">
+          Tulis pesan atau unggah dokumen, tentukan siapa yang berhak menerimanya, dan pastikan hanya orang yang tepat yang dapat membukanya.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="sign-in.html" class="gold-btn w-full sm:w-auto px-8 py-3 text-base text-center">Mulai Sekarang</a>
+          <a href="access-key.html" class="w-full sm:w-auto px-8 py-3 text-base rounded border border-willGold/40 text-willGold hover:bg-willGold/10 transition text-center">
+            Saya Ahli Waris
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 max-w-5xl mx-auto px-4">
+      <h2 class="text-2xl font-bold font-cinzel text-willGold text-center mb-10">Cara Kerjanya</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="will-card p-6 rounded-lg text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-willGold/10 text-willGold flex items-center justify-center font-bold text-lg mb-4">1</div>
+          <h3 class="font-semibold text-white mb-2">Tulis Wasiat</h3>
+          <p class="text-sm text-slate-400">Buat pesan rahasia atau unggah dokumen penting Anda.</p>
+        </div>
+        <div class="will-card p-6 rounded-lg text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-willGold/10 text-willGold flex items-center justify-center font-bold text-lg mb-4">2</div>
+          <h3 class="font-semibold text-white mb-2">Pilih Ahli Waris</h3>
+          <p class="text-sm text-slate-400">Daftarkan penerima beserta foto wajahnya, lalu berikan kartu akses kepadanya.</p>
+        </div>
+        <div class="will-card p-6 rounded-lg text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-willGold/10 text-willGold flex items-center justify-center font-bold text-lg mb-4">3</div>
+          <h3 class="font-semibold text-white mb-2">Ahli Waris Mengklaim</h3>
+          <p class="text-sm text-slate-400">Penerima mengunggah kartu akses dan memverifikasi wajahnya untuk membuka wasiat.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">
+    &copy; 2026 WARISCRYPT
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>
