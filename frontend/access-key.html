@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Klaim Warisan - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-4xl mx-auto px-4 py-12 flex-1 w-full">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="wax-seal w-12 h-12 text-base mx-auto mb-3">W</div>
+      <h1 class="text-3xl font-bold font-cinzel text-white">Portal Klaim Wasiat Digital</h1>
+      <p class="text-xs md:text-sm text-slate-400 mt-2">
+        Unggah gambar PNG steganografi yang Anda terima dari pewaris dan lakukan verifikasi wajah secara langsung untuk mendekripsi dokumen serta pesan rahasia yang diwariskan.
+      </p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="claim-alert" class="hidden mb-6 p-4 rounded text-xs leading-relaxed"></div>
+
+    <!-- Claim Card -->
+    <div class="will-card rounded-xl p-6 md:p-8">
+      <form id="claim-form" onsubmit="handleClaimSubmission(event)" class="space-y-8">
+        <!-- Step 1: Stego Image Upload -->
+        <div>
+          <div class="flex items-center space-x-2 mb-2">
+            <span class="w-6 h-6 rounded-full bg-willGold text-ink font-bold flex items-center justify-center text-xs">1</span>
+            <label class="text-xs font-semibold text-willGold uppercase tracking-wider">Unggah Gambar Steganografi (.PNG)</label>
+          </div>
+          
+          <div class="border-2 border-dashed border-slate-700 rounded-lg p-6 text-center bg-slate-900/60 hover:border-willGold transition">
+            <input type="file" id="claim-stego-file" accept="image/png" required class="hidden" onchange="onStegoFileSelected(this)">
+            <label for="claim-stego-file" class="cursor-pointer block">
+              <i data-lucide="image-down" class="w-10 h-10 text-willGold mx-auto mb-2"></i>
+              <div class="text-sm font-medium text-slate-200" id="stego-file-label">
+                Pilih Berkas Gambar Steganografi (PNG)
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">
+                Sistem akan mengekstrak token LSB tersembunyi berpelindung RSA
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: Biometric Face Verification -->
+        <div>
+          <div class="flex items-center space-x-2 mb-2">
+            <span class="w-6 h-6 rounded-full bg-willGold text-ink font-bold flex items-center justify-center text-xs">2</span>
+            <label class="text-xs font-semibold text-willGold uppercase tracking-wider">Verifikasi Biometrik Wajah Penerima</label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Camera Viewfinder -->
+            <div class="border border-slate-700 rounded-lg p-3 bg-slate-900/80">
+              <div class="relative w-full aspect-video bg-black rounded overflow-hidden mb-3">
+                <video id="claim-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <canvas id="claim-canvas" class="hidden"></canvas>
+                <div id="claim-cam-overlay" class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-900/80">
+                  Kamera belum aktif
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="startClaimCamera()" class="flex-1 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded text-slate-200 border border-slate-700">
+                  Nyalakan Kamera
+                </button>
+                <button type="button" onclick="captureClaimFace()" class="flex-1 py-1.5 text-xs bg-willGold/20 text-willGold border border-willGold/40 rounded font-semibold">
+                  Ambil Foto Selfie
+                </button>
+              </div>
+            </div>
+
+            <!-- Alternative Photo File Upload -->
+            <div class="border border-slate-700 rounded-lg p-4 bg-slate-900/80 flex flex-col justify-center">
+              <span class="text-xs text-slate-300 font-semibold mb-2">Atau Unggah Foto Wajah Langsung:</span>
+              <input type="file" id="claim-face-file" accept="image/*" class="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-slate-800 file:text-slate-200">
+              <span class="text-[10px] text-slate-500 mt-2">
+                Foto akan dicocokkan dengan data referensi biometrik penerima menggunakan analisis kontur dan pencocokan fitur wajah.
+              </span>
+
+              <div id="face-captured-indicator" class="hidden mt-3 p-2 bg-emerald-950/60 border border-emerald-800 rounded text-[11px] text-emerald-300 text-center">
+                Wajah telah diambil & siap diverifikasi!
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="claim-face-base64">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btn-submit-claim" class="gold-btn w-full py-3 text-sm font-bold flex items-center justify-center space-x-2">
+          <i data-lucide="unlock" class="w-4 h-4"></i>
+          <span>Ekstrak Token, Verifikasi Identitas & Buka Wasiat</span>
+        </button>
+      </form>
+
+      <!-- RESULTS SECTION (DECRYPTED ASSETS) -->
+      <div id="claim-success-box" class="hidden mt-10 space-y-6">
+        <!-- Verification Summary Badge -->
+        <div class="p-4 bg-emerald-950/70 border border-emerald-700 rounded-lg flex items-center space-x-3 text-emerald-300">
+          <div class="p-2 bg-emerald-900 rounded-full">
+            <i data-lucide="shield-check" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <div>
+            <div class="font-bold text-white text-sm">Verifikasi Identitas & Token Sukses!</div>
+            <div class="text-xs text-emerald-300" id="claim-match-score">Kecocokan Wajah: 94.2% &bull; Token Sah & Diotentikasi</div>
+          </div>
+        </div>
+
+        <!-- Decrypted Content Container -->
+        <div id="decrypted-assets-container" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/access-key.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

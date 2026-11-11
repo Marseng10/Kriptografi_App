@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockchain Audit Explorer - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-willGold/20 pb-6 gap-4">
+      <div>
+        <div class="flex items-center space-x-2">
+          <i data-lucide="link" class="w-6 h-6 text-purple-400"></i>
+          <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Blockchain Audit Explorer</h1>
+        </div>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Buku besar terdistribusi anti-pemalsuan (tamper-evident). Setiap transaksi ditautkan melalui tanda tangan hash kriptografis SHA-256.
+        </p>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="runChainVerification()" id="btn-verify-chain" class="gold-btn px-4 py-2 text-xs font-semibold flex items-center space-x-2">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Verifikasi Integritas Chain</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Verification Result Banner -->
+    <div id="chain-verif-banner" class="hidden p-4 rounded-lg text-xs leading-relaxed"></div>
+
+    <!-- Chain Status Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="will-card p-5 rounded-lg">
+        <span class="text-slate-400 text-[11px] uppercase tracking-wider block mb-1">Total Blok Transaksi</span>
+        <div class="text-2xl font-bold font-cinzel text-white" id="stat-blocks-count">0 Blok</div>
+      </div>
+      <div class="will-card p-5 rounded-lg md:col-span-2">
+        <span class="text-slate-400 text-[11px] uppercase tracking-wider block mb-1">Blok Terakhir (Latest Hash)</span>
+        <div class="text-xs font-mono text-purple-300 truncate" id="stat-latest-hash">-</div>
+      </div>
+    </div>
+
+    <!-- Visual Blocks Stream -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-bold font-cinzel text-willGold uppercase tracking-wider">Rantai Blok Audit (Dari Terbaru ke Genesis)</h2>
+        <span class="text-xs text-slate-500 font-mono">Standar: SHA-256 Chained Digests</span>
+      </div>
+
+      <div id="blockchain-container" class="space-y-4">
+        <div class="p-8 text-center text-slate-500 will-card rounded-lg">Memuat rantai audit blockchain...</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/audit-trail.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

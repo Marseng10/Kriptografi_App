@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tulis Wasiat Digital - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-4xl mx-auto px-4 py-10 flex-1 w-full">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-3 mb-2">
+        <a href="dashboard.html" class="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Tulis & Enkripsi Wasiat Baru</h1>
+      </div>
+      <p class="text-xs md:text-sm text-slate-400 pl-10">
+        Pesan atau dokumen Anda akan dienkripsi secara simetris, menghasilkan token berpelindung RSA, dan disisipkan ke dalam gambar steganografi PNG.
+      </p>
+    </div>
+
+    <!-- Alert Message -->
+    <div id="create-alert" class="hidden mb-6 p-4 rounded text-xs leading-relaxed"></div>
+
+    <!-- Creation Card -->
+    <div class="will-card rounded-xl p-6 md:p-8">
+      <form id="create-will-form" onsubmit="handleCreateWill(event)" class="space-y-6">
+        <!-- 1. Asset Type Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">1. Jenis Aset Digital</label>
+          <div class="grid grid-cols-2 gap-4">
+            <label class="flex items-center space-x-3 p-4 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold transition">
+              <input type="radio" name="asset_type" value="message" checked onchange="toggleAssetType('message')" class="text-willGold focus:ring-0">
+              <div>
+                <div class="text-sm font-semibold text-white">Pesan Teks Rahasia</div>
+                <div class="text-[11px] text-slate-400">Dienkripsi dengan AES-256-GCM</div>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold transition">
+              <input type="radio" name="asset_type" value="document" onchange="toggleAssetType('document')" class="text-willGold focus:ring-0">
+              <div>
+                <div class="text-sm font-semibold text-white">Dokumen / Berkas</div>
+                <div class="text-[11px] text-slate-400">Dienkripsi dengan ChaCha20-Poly1305</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Asset Title -->
+        <div>
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">2. Judul Wasiat / Aset</label>
+          <input type="text" id="asset-name" required class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Contoh: Pesan Rahasia Brankas & Catatan Rekening">
+        </div>
+
+        <!-- 3. Content Field (Message vs File) -->
+        <div id="container-message-input">
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">3. Isi Pesan Rahasia</label>
+          <textarea id="message-content" rows="6" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-willGold font-serif" placeholder="Tuliskan wasiat, pesan rahasia, instruksi atau kata sandi pribadi Anda di sini..."></textarea>
+          <span class="text-[11px] text-slate-500 mt-1 block">Teks ini akan dienkripsi secara penuh dengan kunci 256-bit sebelum disimpan ke disk.</span>
+        </div>
+
+        <div id="container-document-input" class="hidden">
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">3. Unggah Dokumen Rahasia</label>
+          <div class="border-2 border-dashed border-slate-700 rounded-lg p-6 text-center bg-slate-900/40 hover:border-willGold transition">
+            <input type="file" id="document-file" class="hidden" onchange="updateFileNameDisplay(this)">
+            <label for="document-file" class="cursor-pointer block">
+              <i data-lucide="upload-cloud" class="w-10 h-10 text-willGold mx-auto mb-2"></i>
+              <div class="text-sm text-slate-200 font-medium" id="file-label-text">Klik untuk memilih berkas (PDF, DOCX, TXT, ZIP, dll)</div>
+              <div class="text-[11px] text-slate-500 mt-1">Dokumen akan dienkripsi dengan ChaCha20-Poly1305</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. Beneficiary Selection -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold text-willGold uppercase tracking-wider">4. Tentukan Ahli Waris Penerima</label>
+            <a href="my-wills.html" class="text-xs text-willGold hover:underline">+ Daftarkan Ahli Waris Baru</a>
+          </div>
+
+          <div id="beneficiaries-list" class="space-y-2 bg-slate-900/60 p-4 rounded-lg border border-slate-800 max-h-48 overflow-y-auto">
+            <div class="text-xs text-slate-500 py-2">Memuat daftar ahli waris...</div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 border-t border-slate-800">
+          <button type="submit" id="btn-submit-will" class="gold-btn w-full py-3 text-sm font-bold flex items-center justify-center space-x-2">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+            <span>Enkripsi & Hasilkan Gambar Steganografi</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- SUCCESS MODAL / DOWNLOAD SECTION -->
+      <div id="success-result" class="hidden mt-8 p-6 bg-slate-900/90 border border-willGold rounded-xl">
+        <div class="flex items-center space-x-3 text-emerald-400 mb-4">
+          <div class="p-2 bg-emerald-950 rounded-full border border-emerald-800">
+            <i data-lucide="check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Wasiat Berhasil Dienkripsi & Tersegel!</h3>
+            <p class="text-xs text-slate-300">Gambar steganografi PNG pembawa token rahasia telah dibuat.</p>
+          </div>
+        </div>
+
+        <div class="bg-black/50 p-4 rounded-lg border border-slate-800 mb-4 space-y-2 text-xs font-mono">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Algoritma Enkripsi:</span>
+            <span class="text-willGold" id="res-algo">AES-256-GCM</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Metode Steganografi:</span>
+            <span class="text-slate-200">Least Significant Bit (LSB) PNG</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Status Blockchain:</span>
+            <span class="text-purple-400">Block Baru Ditambahkan & Ditandatangani</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <a id="btn-download-stego" href="#" download class="gold-btn flex-1 py-2.5 text-xs text-center font-bold flex items-center justify-center space-x-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Unduh Gambar Steganografi (.PNG)</span>
+          </a>
+          <a href="my-wills.html" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 text-xs text-center font-medium transition">
+            Lihat di Daftar Wasiat
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/create-will.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

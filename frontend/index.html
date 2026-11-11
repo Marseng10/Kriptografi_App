@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WARISCRYPT - Secure Digital Inheritance System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="relative py-24 md:py-32 overflow-hidden border-b border-willGold/20">
+      <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#c5a880_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center max-w-3xl mx-auto">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-willGold/40 bg-willGold/10 text-willGold text-xs uppercase tracking-widest mb-6">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Sistem Pewarisan Digital Kriptografis</span>
+          </div>
+
+          <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight font-cinzel mb-6 gold-gradient-text leading-tight">
+            Warisan Berharga,<br>Tersegel Abadi Dalam Kode.
+          </h1>
+
+          <p class="text-lg md:text-xl text-slate-300 font-light leading-relaxed mb-10">
+            WARISCRYPT mengamankan pesan pribadi dan dokumen rahasia Anda kepada ahli waris yang berhak. Dilindungi enkripsi AES-256-GCM & ChaCha20-Poly1305, disembunyikan dengan steganografi gambar, diverifikasi biometrik wajah, dan diaudit oleh blockchain.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="sign-in.html" class="gold-btn w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-center flex items-center justify-center space-x-2">
+              <span>Mulai Wasiat Digital</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="access-key.html" class="w-full sm:w-auto px-8 py-3.5 text-base font-medium rounded border border-willGold/40 text-willGold hover:bg-willGold/10 transition text-center flex items-center justify-center space-x-2">
+              <i data-lucide="key" class="w-4 h-4"></i>
+              <span>Klaim Warisan (Ahli Waris)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Pillars Section -->
+    <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold font-cinzel text-willGold mb-3">Arsitektur Keamanan Berlapis</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-sm">
+          Dirancang sesuai standar proteksi data tingkat tinggi dengan integrasi kriptografi hibrida, kecerdasan buatan, dan bukti integritas tidak dapat diubah.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Card 1 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">Dual-Cipher Encryption</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Pesan pribadi dilindungi <strong>AES-256-GCM</strong> (AEAD), sedangkan dokumen digital dienkripsi dengan <strong>ChaCha20-Poly1305</strong>. Kunci disimpan terpisah di vault aman.
+          </p>
+          <span class="text-xs text-willGold font-mono">Argon2id + AES-256-GCM + ChaCha20</span>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-6">
+            <i data-lucide="image" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">LSB Steganography</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Token klaim berentropi tinggi dienkripsi dengan amplop RSA-OAEP dan disisipkan tanpa kasat mata ke dalam piksel gambar PNG menggunakan teknik Least Significant Bit.
+          </p>
+          <span class="text-xs text-willGold font-mono">Invisible Concealment + RSA-2048</span>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-6">
+            <i data-lucide="scan-face" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">Biometric Face Matching</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Ahli waris memverifikasi identitas melalui webcam live matching terhadap foto referensi yang didaftarkan pewaris menggunakan OpenCV Feature Recognition & Histogram Analysis.
+          </p>
+          <span class="text-xs text-willGold font-mono">Anti-Impersonation AI Verification</span>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-6">
+            <i data-lucide="usb" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">Hardware USB Launcher</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Aplikasi pendamping lokal mendeteksi flashdisk fisik WARISCRYPT yang memuat fingerprint kriptografis dan secara otomatis meluncurkan sistem pada perangkat Anda.
+          </p>
+          <span class="text-xs text-willGold font-mono">Physical Hardware Factor</span>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6">
+            <i data-lucide="link" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">Blockchain Audit Trail</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Setiap peristiwa pembuatan wasiat, penambahan ahli waris, dan percobaan klaim dicatat dalam rantai hash SHA-256 yang saling terhubung dan anti-pemalsuan (tamper-evident).
+          </p>
+          <span class="text-xs text-willGold font-mono">SHA-256 Hash Chain Integrity</span>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="will-card p-8 rounded-lg relative overflow-hidden">
+          <div class="w-12 h-12 rounded bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-6">
+            <i data-lucide="lock" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 font-cinzel">Dead Man's Switch</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            Kondisi pelepasan wasiat terpusat pada kontrol pewaris. Wasiat terkunci secara default hingga pewaris mengizinkan rilis atau kondisi verifikasi akhir terpenuhi.
+          </p>
+          <span class="text-xs text-willGold font-mono">Controlled Release Mechanism</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Quick CTA Section -->
+    <section class="py-16 bg-ink border-t border-b border-willGold/20">
+      <div class="max-w-5xl mx-auto px-4 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-4">
+          Ingin Mencoba Laboratorium Kriptografi Klasik & Modern?
+        </h2>
+        <p class="text-slate-400 text-sm max-w-xl mx-auto mb-8">
+          Bandingkan perbedaan matematis antara cipher klasik Vigenère dengan standar modern AES-256-GCM dan ChaCha20 secara interaktif.
+        </p>
+        <div class="flex justify-center gap-4">
+          <a href="crypto-demo.html" class="px-6 py-2.5 rounded bg-slate-800 border border-willGold text-willGold hover:bg-slate-700 text-sm font-semibold transition">
+            Buka Laboratorium Kripto
+          </a>
+          <a href="sign-in.html" class="gold-btn px-6 py-2.5 text-sm font-semibold">
+            Masuk ke Akun Anda
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-8 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="wax-seal w-6 h-6 text-[10px]">W</div>
+        <span class="font-cinzel text-slate-400 font-bold">WARISCRYPT</span>
+        <span>&mdash; Secure Digital Inheritance System</span>
+      </div>
+      <div>
+        <span>Dilengkapi Argon2id, AES-256-GCM, ChaCha20, LSB Steganography, Biometrics & Blockchain.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

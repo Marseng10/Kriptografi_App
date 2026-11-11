@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Wasiat & Ahli Waris - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-10">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-willGold/20 pb-6 gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Kelola Wasiat & Ahli Waris</h1>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Pantau status pelepasan wasiat digital, unduh gambar steganografi, dan kelola data referensi ahli waris.
+        </p>
+      </div>
+      <div>
+        <a href="create-will.html" class="gold-btn px-4 py-2 text-xs font-semibold flex items-center space-x-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Tulis Wasiat Baru</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="wills-alert" class="hidden p-4 rounded text-xs leading-relaxed"></div>
+
+    <!-- SECTION 1: DIGITAL ASSETS / WILLS LIST -->
+    <div>
+      <div class="flex items-center space-x-2 mb-4">
+        <i data-lucide="folder-lock" class="w-5 h-5 text-willGold"></i>
+        <h2 class="text-lg font-bold font-cinzel text-white">Daftar Wasiat Terenkripsi</h2>
+      </div>
+
+      <div class="will-card rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-800 bg-slate-900/60">
+                <th class="py-3 px-4">Nama Aset</th>
+                <th class="py-3 px-4">Jenis</th>
+                <th class="py-3 px-4">Algoritma Enkripsi</th>
+                <th class="py-3 px-4">Ahli Waris & Status Rilis</th>
+                <th class="py-3 px-4">Berkas Steganografi</th>
+                <th class="py-3 px-4">Aksi Pelepasan (Dead Man's Switch)</th>
+              </tr>
+            </thead>
+            <tbody id="assets-table-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="6" class="py-8 text-center text-slate-500">Memuat daftar aset wasiat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: BENEFICIARIES MANAGEMENT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Form Add Beneficiary -->
+      <div class="will-card p-6 rounded-lg">
+        <div class="flex items-center space-x-2 mb-4 border-b border-slate-800 pb-3">
+          <i data-lucide="user-plus" class="w-5 h-5 text-rose-400"></i>
+          <h2 class="text-base font-bold font-cinzel text-white">Tambah Ahli Waris</h2>
+        </div>
+
+        <form id="add-ben-form" onsubmit="handleAddBeneficiary(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Username atau Email Ahli Waris</label>
+            <input type="text" id="ben-identifier" required class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="ahliwaris / email">
+            <span class="text-[10px] text-slate-500 block mt-1">Calon ahli waris harus sudah memiliki akun di sistem.</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Hubungan Keluarga / Peran</label>
+            <input type="text" id="ben-relation" class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="Contoh: Anak Kandung, Suami/Istri">
+          </div>
+
+          <!-- Reference Face Photo (Webcam or file) -->
+          <div class="border border-slate-800 rounded p-3 bg-slate-950/40">
+            <label class="block text-xs font-semibold text-willGold mb-1">Foto Referensi Wajah (Biometrik)</label>
+            <p class="text-[10px] text-slate-400 mb-2">Digunakan untuk mencocokkan wajah saat ahli waris mengklaim wasiat.</p>
+            
+            <input type="file" id="ben-face-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-slate-800 file:text-slate-200">
+          </div>
+
+          <button type="submit" id="btn-add-ben" class="gold-btn w-full py-2.5 text-xs font-semibold">
+            Daftarkan Ahli Waris
+          </button>
+        </form>
+      </div>
+
+      <!-- Beneficiaries List -->
+      <div class="will-card p-6 rounded-lg lg:col-span-2">
+        <div class="flex items-center space-x-2 mb-4 border-b border-slate-800 pb-3">
+          <i data-lucide="users" class="w-5 h-5 text-willGold"></i>
+          <h2 class="text-base font-bold font-cinzel text-white">Daftar Ahli Waris Terdaftar</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-800">
+                <th class="py-2.5 px-3">Nama</th>
+                <th class="py-2.5 px-3">Username / Email</th>
+                <th class="py-2.5 px-3">Hubungan</th>
+                <th class="py-2.5 px-3">Biometrik Wajah</th>
+                <th class="py-2.5 px-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="beneficiaries-table-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-500">Memuat daftar ahli waris...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/my-wills.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

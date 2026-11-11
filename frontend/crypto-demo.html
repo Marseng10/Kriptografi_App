@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratorium Kriptografi - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
+  <!-- Nav -->
+  <div id="main-nav"></div>
+
+  <main class="max-w-5xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <div class="inline-flex p-2 bg-amber-500/10 rounded-full border border-amber-500/30 text-amber-400 mb-3">
+        <i data-lucide="flask-conical" class="w-6 h-6"></i>
+      </div>
+      <h1 class="text-3xl font-bold font-cinzel text-white">Laboratorium Kriptografi</h1>
+      <p class="text-xs md:text-sm text-slate-400 mt-2">
+        Eksplorasi perbandingan komputasi matematis antara algoritma cipher klasik (Vigenère) dengan standar kriptografi modern (AES-256-GCM & ChaCha20-Poly1305).
+      </p>
+    </div>
+
+    <!-- Playground Form -->
+    <div class="will-card rounded-xl p-6 md:p-8 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">Pesan Plaintext</label>
+          <input type="text" id="demo-plaintext" value="WARISAN RAHASIA KELUARGA 2026" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-willGold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-willGold uppercase tracking-wider mb-2">Kata Kunci (Kunci Simetris)</label>
+          <input type="text" id="demo-key" value="KUNCIRAHASIA" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-willGold">
+        </div>
+      </div>
+
+      <button type="button" onclick="runCryptoComparison()" id="btn-run-demo" class="gold-btn w-full py-2.5 text-xs font-bold flex items-center justify-center space-x-2">
+        <i data-lucide="zap" class="w-4 h-4"></i>
+        <span>Enkripsi Secara Paralel & Bandingkan</span>
+      </button>
+
+      <!-- Comparison Output Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-800">
+        <!-- 1. Vigenere -->
+        <div class="p-4 bg-slate-900/80 rounded-lg border border-amber-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 font-cinzel">1. Vigenère Cipher</span>
+            <span class="text-[10px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Klasik</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Polyalphabetic substitution berbasis pergeseran Caesar.</p>
+          <div class="p-2.5 bg-black/60 rounded border border-slate-800 font-mono text-xs text-amber-200 break-all select-all min-h-[48px]" id="out-vigenere">
+            -
+          </div>
+          <div class="text-[10px] text-rose-400 font-medium">Rentan Kasiski test & frequency analysis. Tidak ada auth tag.</div>
+        </div>
+
+        <!-- 2. AES-256-GCM -->
+        <div class="p-4 bg-slate-900/80 rounded-lg border border-willGold/40 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-willGold font-cinzel">2. AES-256-GCM</span>
+            <span class="text-[10px] bg-yellow-950 text-willGold px-1.5 py-0.5 rounded">Modern (Pesan)</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Block cipher 256-bit dengan Galois Counter Mode (AEAD).</p>
+          <div class="p-2.5 bg-black/60 rounded border border-slate-800 font-mono text-xs text-willGold break-all select-all min-h-[48px]" id="out-aes">
+            -
+          </div>
+          <div class="text-[10px] text-emerald-400 font-medium">Standar perbankan & militer. Anti-tampering (Integritas Terjamin).</div>
+        </div>
+
+        <!-- 3. ChaCha20-Poly1305 -->
+        <div class="p-4 bg-slate-900/80 rounded-lg border border-blue-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-400 font-cinzel">3. ChaCha20-Poly1305</span>
+            <span class="text-[10px] bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded">Modern (Dokumen)</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Stream cipher berkecepatan tinggi dengan MAC Poly1305.</p>
+          <div class="p-2.5 bg-black/60 rounded border border-slate-800 font-mono text-xs text-blue-200 break-all select-all min-h-[48px]" id="out-chacha">
+            -
+          </div>
+          <div class="text-[10px] text-emerald-400 font-medium">Tahan cache-timing attack, optimal untuk file berukuran besar.</div>
+        </div>
+      </div>
+
+      <!-- Analytical Notes -->
+      <div class="p-4 bg-slate-950/80 rounded-lg border border-slate-800 text-xs text-slate-300 whitespace-pre-line leading-relaxed font-mono" id="out-notes">
+        Klik 'Enkripsi Secara Paralel' untuk memulai simulasi.
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
+    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/crypto-demo.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
