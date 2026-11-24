@@ -23,6 +23,7 @@ tailwind.config = {
         }
       },
       fontFamily: {
+        cinzel: ['Cinzel', 'Playfair Display', 'Georgia', 'serif'],
         serif: ['Cinzel', 'Playfair Display', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['Fira Code', 'Courier New', 'monospace']

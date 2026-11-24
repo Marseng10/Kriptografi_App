@@ -32,7 +32,6 @@ function renderNavigation() {
         navLink('usb-setup.html', 'Flashdisk', currentPage);
     } else {
       navLinks =
-        navLink('dashboard.html', 'Beranda', currentPage) +
         navLink('access-key.html', 'Klaim Warisan', currentPage);
     }
 

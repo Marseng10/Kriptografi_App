@@ -7,78 +7,158 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="css/tailwind-config.js"></script>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
-  <div id="main-nav"></div>
+<body data-active="create-will" class="bg-ink-darker text-slate-200 min-h-screen">
+  <div id="shell"></div>
 
-  <main class="max-w-2xl mx-auto px-4 py-10 flex-1 w-full">
-    <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Tulis Wasiat Baru</h1>
-    <p class="text-sm text-slate-400 mb-6">Isi data di bawah, lalu Anda akan mendapat kartu akses untuk diberikan kepada ahli waris.</p>
+  <!-- Main Content -->
+  <main class="app-main-content">
+    <div class="p-4 sm:p-8 max-w-4xl mx-auto w-full space-y-6 flex-1">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Tulis Wasiat Baru</h1>
+        <p class="text-xs md:text-sm text-slate-400">
+          Tulis pesan wasiat beserta lampiran berkas dokumen penting Anda dalam satu paket wasiat terpadu.
+        </p>
+      </div>
 
-    <div id="create-alert" class="hidden mb-5 p-3 rounded text-sm"></div>
+      <div id="create-alert" class="hidden p-3 rounded-lg text-xs leading-relaxed"></div>
 
-    <div class="will-card rounded-xl p-6">
-      <form id="create-will-form" onsubmit="handleCreateWill(event)" class="space-y-5">
-        <div>
-          <label class="block text-sm font-medium text-slate-200 mb-2">Jenis Wasiat</label>
-          <div class="grid grid-cols-2 gap-3">
-            <label class="flex items-center space-x-2 p-3 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold">
-              <input type="radio" name="asset_type" value="message" checked onchange="toggleAssetType('message')">
-              <span class="text-sm">Pesan Teks</span>
+      <div class="will-card rounded-xl p-6 md:p-8">
+        <form id="create-will-form" onsubmit="handleCreateWill(event)" class="space-y-5">
+
+          <!-- 1. Judul Wasiat -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="asset-name">
+              1. Judul Wasiat <span class="text-willGold">*</span>
             </label>
-            <label class="flex items-center space-x-2 p-3 bg-slate-900/80 border border-slate-700 rounded-lg cursor-pointer hover:border-willGold">
-              <input type="radio" name="asset_type" value="document" onchange="toggleAssetType('document')">
-              <span class="text-sm">Dokumen / File</span>
+            <input type="text" id="asset-name" required class="w-full bg-slate-900/90 border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-willGold" placeholder="Contoh: Wasiat Rumah & Pesan Terakhir untuk Keluarga">
+          </div>
+
+          <!-- 2. Isi Pesan Teks -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300" for="message-content">
+                2. Isi Pesan Wasiat (Teks)
+              </label>
+              <span class="text-[10px] font-mono text-willGold/80 flex items-center space-x-1">
+                <i data-lucide="mail" class="w-3 h-3"></i>
+                <span>Pesan Rahasia</span>
+              </span>
+            </div>
+            <textarea id="message-content" rows="6" class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-3.5 text-xs text-white focus:outline-none focus:border-willGold leading-relaxed" placeholder="Tuliskan pesan, amanat, atau penjelasan mengenai dokumen yang Anda wariskan di sini..."></textarea>
+          </div>
+
+          <!-- 3. Lampiran Berkas / Dokumen -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300">
+                3. Lampiran Berkas / Dokumen Wasiat
+              </label>
+              <button type="button" id="btn-clear-file" onclick="clearSelectedFile()" class="hidden text-[11px] text-rose-400 hover:underline">
+                Hapus Berkas
+              </button>
+            </div>
+            <input type="file" id="document-file" onchange="updateFileNameDisplay(this)" class="hidden">
+            <label for="document-file" class="block cursor-pointer border-2 border-dashed border-slate-700 hover:border-willGold rounded-lg p-6 text-center transition bg-slate-900/40">
+              <i data-lucide="upload-cloud" class="w-8 h-8 text-willGold mx-auto mb-2"></i>
+              <span class="text-xs text-slate-300 font-medium block" id="file-label-text">Klik untuk melampirkan berkas dokumen pada wasiat ini</span>
+              <span class="text-[11px] text-slate-500 mt-0.5 block">Mendukung PDF, Word, Excel, Gambar Sertifikat, ZIP, dll.</span>
             </label>
           </div>
-        </div>
 
-        <div>
-          <label class="block text-sm font-medium text-slate-200 mb-2">Judul</label>
-          <input type="text" id="asset-name" required class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Contoh: Pesan untuk keluarga">
-        </div>
-
-        <div id="container-message-input">
-          <label class="block text-sm font-medium text-slate-200 mb-2">Isi Pesan</label>
-          <textarea id="message-content" rows="6" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Tulis pesan Anda di sini..."></textarea>
-        </div>
-
-        <div id="container-document-input" class="hidden">
-          <label class="block text-sm font-medium text-slate-200 mb-2">File Dokumen</label>
-          <input type="file" id="document-file" onchange="updateFileNameDisplay(this)" class="hidden">
-          <label for="document-file" class="block cursor-pointer border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-willGold transition">
-            <span class="text-sm text-slate-300" id="file-label-text">Klik untuk memilih file</span>
-          </label>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-slate-200">Untuk Siapa?</label>
-            <a href="my-wills.html" class="text-xs text-willGold hover:underline">+ Tambah ahli waris</a>
+          <!-- 4. Pemilihan Ahli Waris -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-slate-300">
+                4. Penerima Wasiat (Ahli Waris) <span class="text-willGold">*</span>
+              </label>
+              <button type="button" onclick="openAddBeneficiaryModal()" class="text-xs text-willGold hover:underline font-medium flex items-center space-x-1">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                <span>+ Tambah Ahli Waris</span>
+              </button>
+            </div>
+            <div id="beneficiaries-list" class="space-y-1.5 bg-slate-900/70 p-3 rounded-lg border border-slate-800 max-h-48 overflow-y-auto">
+              <div class="text-xs text-slate-500 py-2">Memuat daftar ahli waris...</div>
+            </div>
           </div>
-          <div id="beneficiaries-list" class="space-y-1 bg-slate-900/60 p-3 rounded-lg border border-slate-800 max-h-44 overflow-y-auto">
-            <div class="text-sm text-slate-500">Memuat...</div>
+
+          <!-- Tombol Submit -->
+          <button type="submit" id="btn-submit-will" class="gold-btn w-full py-3 text-xs font-semibold shadow-lg">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Simpan Wasiat (Pesan &amp; Berkas)</span>
+          </button>
+        </form>
+
+        <!-- Kotak Sukses -->
+        <div id="success-result" class="hidden mt-6 p-5 bg-slate-900/90 border border-willGold/40 rounded-xl space-y-4">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-400 flex items-center justify-center shrink-0">
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-emerald-400 font-cinzel">Wasiat Terpadu Berhasil Disimpan</h3>
+              <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+                Pesan teks dan berkas lampiran Anda telah diamankan. Unduh kartu akses gambar di bawah ini dan berikan kepada ahli waris Anda.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <button type="submit" id="btn-submit-will" class="gold-btn w-full py-3 text-sm font-semibold">Simpan Wasiat</button>
-      </form>
-
-      <div id="success-result" class="hidden mt-6 p-5 bg-slate-900/90 border border-willGold rounded-xl">
-        <h3 class="text-base font-bold text-emerald-400 mb-1">Wasiat berhasil disimpan!</h3>
-        <p class="text-sm text-slate-300 mb-4">Unduh kartu akses (gambar) di bawah ini dan berikan kepada ahli waris. Kartu ini diperlukan saat mereka mengklaim wasiat.</p>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <a id="btn-download-stego" href="#" download class="gold-btn flex-1 py-2.5 text-sm text-center font-semibold">Unduh Kartu Akses</a>
-          <a href="my-wills.html" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-sm text-center">Lihat Daftar Wasiat</a>
+          <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-800">
+            <a id="btn-download-stego" href="#" download class="gold-btn flex-1 py-2 text-xs text-center font-semibold">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Unduh Kartu Akses (.png)</span>
+            </a>
+            <a id="btn-custom-stego" href="access-key.html" class="ghost-btn px-4 py-2 text-xs text-center">
+              Ganti Foto Kunci
+            </a>
+            <a href="my-wills.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded text-xs text-slate-300 text-center border border-slate-700">
+              Lihat Daftar Wasiat
+            </a>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Modal Tambah Ahli Waris Cepat -->
+    <div id="add-ben-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="will-card max-w-md w-full p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+          <h3 class="font-bold font-cinzel text-sm text-willGold">Tambah Ahli Waris</h3>
+          <button type="button" onclick="closeAddBeneficiaryModal()" class="text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="ben-modal-alert" class="hidden p-2.5 rounded text-xs"></div>
+
+        <form id="form-quick-ben" onsubmit="handleQuickAddBeneficiary(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Username / Email Akun</label>
+            <input type="text" id="ben-username" required class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="ahliwaris">
+            <p class="text-[10px] text-slate-500 mt-0.5">Pastikan akun ahli waris sudah terdaftar di sistem.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Hubungan Keluarga</label>
+            <input type="text" id="ben-relationship" required class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="Anak Kandung / Suami / Istri">
+          </div>
+
+          <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+            <button type="button" onclick="closeAddBeneficiaryModal()" class="px-3 py-1.5 rounded text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">Batal</button>
+            <button type="submit" id="btn-submit-quick-ben" class="gold-btn px-4 py-1.5 text-xs font-semibold">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500 mt-auto">
+      &copy; 2026 WARISCRYPT &bull; Wasiat Digital Aman
+    </footer>
   </main>
 
-  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
-
   <script src="js/config.js"></script>
-  <script src="js/nav.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/create-will.js"></script>
 </body>
 </html>

@@ -93,9 +93,6 @@ async def verify_and_claim_inheritance(
         )
         raise HTTPException(status_code=403, detail="Token ini ditujukan untuk ahli waris yang berbeda")
         
-    if claim_token.token_status == "used":
-        raise HTTPException(status_code=400, detail="Token klaim ini sudah pernah digunakan (Replay attack prevention)")
-        
     if claim_token.token_status in ["revoked", "expired"]:
         raise HTTPException(status_code=400, detail=f"Token klaim sudah tidak aktif ({claim_token.token_status})")
 
@@ -112,7 +109,7 @@ async def verify_and_claim_inheritance(
     db.commit()
     db.refresh(inheritance_claim)
     
-    # 3. Step A: Token verification record
+    # 3. Token verification record (Biometrik dikhususkan untuk Login, Klaim menggunakan Kartu Akses Foto)
     token_verif = ClaimVerification(
         claim_id=inheritance_claim.claim_id,
         verification_type="token",
@@ -123,84 +120,10 @@ async def verify_and_claim_inheritance(
     )
     db.add(token_verif)
     db.commit()
-    
-    # 4. Step B: Face Matching verification
-    # Retrieve reference image uploaded by owner
-    ref_image_rec = db.query(BeneficiaryReferenceImage).filter(
-        BeneficiaryReferenceImage.beneficiary_id == beneficiary.beneficiary_id,
-        BeneficiaryReferenceImage.status == "active"
-    ).first()
-    
-    face_input = None
-    if face_image:
-        face_input = await face_image.read()
-    elif face_image_base64:
-        face_input = face_image_base64
-        
-    if not face_input:
-        inheritance_claim.claim_status = "rejected"
-        db.commit()
-        raise HTTPException(status_code=400, detail="Foto wajah wajib dilampirkan untuk verifikasi biometrik")
-        
-    face_match_passed = True
-    similarity_score = 1.00000
-    failure_reason = None
-    
-    if ref_image_rec and Path(ref_image_rec.image_path).exists():
-        match_res = compute_face_similarity(ref_image_rec.image_path, face_input)
-        face_match_passed = match_res["passed"]
-        similarity_score = match_res["score"]
-        failure_reason = match_res["failure_reason"]
-    else:
-        # If no owner reference image is present, check if user has a profile biometric template
-        user_bio = db.query(User).filter(User.user_id == current_user.user_id).first()
-        if user_bio and user_bio.biometrics:
-            bio_path = user_bio.biometrics[0].template_path
-            match_res = compute_face_similarity(bio_path, face_input)
-            face_match_passed = match_res["passed"]
-            similarity_score = match_res["score"]
-            failure_reason = match_res["failure_reason"]
-        else:
-            # First time baseline match if no reference was previously set
-            face_match_passed = True
-            similarity_score = 0.95000
 
-    face_verif = ClaimVerification(
-        claim_id=inheritance_claim.claim_id,
-        verification_type="face_matching",
-        verification_result="passed" if face_match_passed else "failed",
-        similarity_score=similarity_score,
-        failure_reason_code=failure_reason,
-        verified_at=utc_now(),
-        created_at=utc_now()
-    )
-    db.add(face_verif)
-    db.commit()
-    
-    if not face_match_passed:
-        inheritance_claim.claim_status = "rejected"
-        db.commit()
-        record_audit_event(
-            db=db,
-            activity_type="CLAIM_REJECTED_FACE_MISMATCH",
-            user_id=current_user.user_id,
-            entity_type="inheritance_claims",
-            entity_id=inheritance_claim.claim_id,
-            event_metadata={"similarity": similarity_score, "reason": failure_reason}
-        )
-        return {
-            "claim_id": inheritance_claim.claim_id,
-            "status": "rejected",
-            "token_valid": True,
-            "face_match_passed": False,
-            "similarity_score": similarity_score,
-            "failure_reason": f"Verifikasi biometrik wajah tidak cocok ({similarity_score*100:.1f}%).",
-            "released_assets": []
-        }
-        
-    # 5. Check release condition
-    # An asset can be released if owner explicitly marked it released, OR
-    # upon verified claim presentation with authorized status.
+    similarity_score = 1.00000
+
+    # 4. Check release condition
     asset = db.query(DigitalAsset).filter(DigitalAsset.asset_id == claim_token.asset_id).first()
     if not asset:
         raise HTTPException(status_code=404, detail="Aset wasiat tidak ditemukan")
@@ -229,14 +152,33 @@ async def verify_and_claim_inheritance(
     perm.released_at = utc_now()
     db.commit()
     
-    # 6. Decrypt Asset Content
+    # 5. Decrypt Asset Content (Supports Message Only, Document Only, or Combined Message + Document)
     decrypted_content = None
+    has_message = False
+    has_document = False
     enc_key_rec = db.query(EncryptionKey).filter(EncryptionKey.key_id == asset.key_id).first()
     
     if enc_key_rec:
         raw_key = retrieve_key_bytes(enc_key_rec.key_identifier)
-        if asset.asset_type == "message":
-            enc_file = Path(asset.encrypted_file_path)
+        raw_path_str = asset.encrypted_file_path or ""
+
+        if "|" in raw_path_str:
+            msg_path_str, doc_path_str = raw_path_str.split("|", 1)
+            msg_file = Path(msg_path_str)
+            doc_file = Path(doc_path_str)
+            if msg_file.exists():
+                full_payload_b64 = msg_file.read_text(encoding="utf-8")
+                raw_bytes = base64.b64decode(full_payload_b64)
+                nonce_b64 = base64.b64encode(raw_bytes[:12]).decode("utf-8")
+                ct_with_tag = raw_bytes[12:]
+                ct_b64 = base64.b64encode(ct_with_tag[:-16]).decode("utf-8")
+                tag_b64 = base64.b64encode(ct_with_tag[-16:]).decode("utf-8")
+                decrypted_content = decrypt_message(ct_b64, nonce_b64, tag_b64, raw_key)
+                has_message = True
+            if doc_file.exists() and asset.original_filename:
+                has_document = True
+        elif asset.asset_type == "message":
+            enc_file = Path(raw_path_str)
             if enc_file.exists():
                 full_payload_b64 = enc_file.read_text(encoding="utf-8")
                 raw_bytes = base64.b64decode(full_payload_b64)
@@ -245,8 +187,9 @@ async def verify_and_claim_inheritance(
                 ct_b64 = base64.b64encode(ct_with_tag[:-16]).decode("utf-8")
                 tag_b64 = base64.b64encode(ct_with_tag[-16:]).decode("utf-8")
                 decrypted_content = decrypt_message(ct_b64, nonce_b64, tag_b64, raw_key)
+                has_message = True
         elif asset.asset_type == "document":
-            decrypted_content = f"Dokumen '{asset.original_filename}' siap diunduh secara terenkripsi."
+            has_document = True
             
     record_audit_event(
         db=db,
@@ -257,7 +200,8 @@ async def verify_and_claim_inheritance(
         event_metadata={
             "asset_id": asset.asset_id,
             "asset_name": asset.asset_name,
-            "similarity_score": similarity_score
+            "has_message": has_message,
+            "has_document": has_document
         }
     )
     
@@ -273,9 +217,11 @@ async def verify_and_claim_inheritance(
                 "asset_id": asset.asset_id,
                 "asset_name": asset.asset_name,
                 "asset_type": asset.asset_type,
-                "decrypted_content": decrypted_content if asset.asset_type == "message" else None,
-                "original_filename": asset.original_filename,
-                "download_url": f"/api/claims/download-decrypted/{asset.asset_id}" if asset.asset_type == "document" else None
+                "has_message": has_message,
+                "has_document": has_document,
+                "decrypted_content": decrypted_content if has_message else None,
+                "original_filename": asset.original_filename if has_document else None,
+                "download_url": f"/api/claims/download-decrypted/{asset.asset_id}" if has_document else None
             }
         ]
     }
@@ -310,7 +256,9 @@ def download_decrypted_document(asset_id: int, current_user: User = Depends(get_
         raise HTTPException(status_code=500, detail="Kunci enkripsi tidak ditemukan di vault")
         
     raw_key = retrieve_key_bytes(enc_key_rec.key_identifier)
-    enc_file = Path(asset.encrypted_file_path)
+    raw_path_str = asset.encrypted_file_path or ""
+    doc_path_str = raw_path_str.split("|", 1)[1] if "|" in raw_path_str else raw_path_str
+    enc_file = Path(doc_path_str)
     if not enc_file.exists():
         raise HTTPException(status_code=404, detail="File terenkripsi fisik tidak ditemukan")
         

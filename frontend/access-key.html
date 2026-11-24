@@ -3,72 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Klaim Warisan - WARISCRYPT</title>
+  <title>Kartu Akses Foto - WARISCRYPT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="css/tailwind-config.js"></script>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
-  <div id="main-nav"></div>
+<body data-active="access-key" class="bg-ink-darker text-slate-200 min-h-screen">
+  <div id="shell"></div>
 
-  <main class="max-w-2xl mx-auto px-4 py-10 flex-1 w-full">
-    <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Klaim Warisan</h1>
-    <p class="text-sm text-slate-400 mb-6">Unggah kartu akses dari pewaris dan verifikasi wajah Anda untuk membuka wasiat.</p>
-
-    <div id="guest-notice" class="hidden mb-5 p-3 rounded text-sm bg-amber-950/60 border border-amber-800 text-amber-200">
-      Anda perlu <a href="sign-in.html" class="underline font-semibold">masuk</a> sebagai ahli waris terlebih dahulu.
-    </div>
-    <div id="claim-alert" class="hidden mb-5 p-3 rounded text-sm"></div>
-
-    <div class="will-card rounded-xl p-6">
-      <form id="claim-form" onsubmit="handleClaimSubmission(event)" class="space-y-6">
+  <!-- Main Content -->
+  <main class="app-main-content">
+    <div class="p-4 sm:p-8 max-w-4xl mx-auto w-full space-y-6 flex-1">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-willGold/20 gap-3">
         <div>
-          <label class="block text-sm font-medium text-slate-200 mb-2">1. Kartu Akses</label>
-          <input type="file" id="claim-stego-file" accept="image/png" required class="hidden" onchange="onStegoFileSelected(this)">
-          <label for="claim-stego-file" class="block cursor-pointer border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-willGold transition">
-            <span class="text-sm text-slate-300" id="stego-file-label">Klik untuk memilih gambar kartu akses (.png)</span>
-          </label>
+          <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Kartu Akses Foto</h1>
+          <p class="text-xs md:text-sm text-slate-400 mt-1">
+            Sisipkan kunci rahasia wasiat ke dalam foto kenangan keluarga pilihan Anda.
+          </p>
         </div>
+        <div class="flex items-center space-x-2">
+          <a href="claim.html" class="ghost-btn px-3 py-1.5 text-xs">
+            <i data-lucide="unlock" class="w-3.5 h-3.5 text-willGold"></i>
+            <span>Portal Klaim Ahli Waris</span>
+          </a>
+        </div>
+      </div>
 
-        <div>
-          <label class="block text-sm font-medium text-slate-200 mb-2">2. Foto Wajah Anda</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="border border-slate-700 rounded-lg p-3 bg-slate-900/80">
-              <div class="relative w-full aspect-video bg-black rounded overflow-hidden mb-2">
-                <video id="claim-video" autoplay playsinline class="w-full h-full object-cover"></video>
-                <canvas id="claim-canvas" class="hidden"></canvas>
-                <div id="claim-cam-overlay" class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-900/80">Kamera belum aktif</div>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="startClaimCamera()" class="flex-1 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 rounded border border-slate-700">Nyalakan Kamera</button>
-                <button type="button" onclick="captureClaimFace()" class="flex-1 py-1.5 text-xs bg-willGold/20 text-willGold border border-willGold/40 rounded">Ambil Foto</button>
-              </div>
+      <div id="access-alert" class="hidden p-3.5 rounded-lg text-xs leading-relaxed"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        <!-- Pratinjau Foto -->
+        <div class="will-card p-6 rounded-xl space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="image" class="w-4 h-4 text-willGold"></i>
+              <h2 class="text-sm font-bold font-cinzel text-white">Foto Pembawa Kunci</h2>
             </div>
-            <div class="border border-slate-700 rounded-lg p-3 bg-slate-900/80 flex flex-col justify-center">
-              <span class="text-sm text-slate-300 mb-2">Atau unggah foto:</span>
-              <input type="file" id="claim-face-file" accept="image/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200">
-              <div id="face-captured-indicator" class="hidden mt-3 p-2 bg-emerald-950/60 border border-emerald-800 rounded text-xs text-emerald-300 text-center">Foto sudah diambil</div>
+            <span class="text-[10px] text-emerald-400 font-mono px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-800">
+              Format Gambar
+            </span>
+          </div>
+
+          <div class="parchment-frame rounded-lg p-2 bg-slate-950/60">
+            <div class="relative w-full aspect-[4/3] bg-black rounded overflow-hidden flex items-center justify-center">
+              <img id="carrier-preview-image" src="assets/images/hero-wide.jpg" alt="Pratinjau" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-3">
+                <span id="carrier-filename-label" class="text-xs font-mono text-willGold truncate">foto_kenangan.png</span>
+                <span id="carrier-status-tag" class="text-[10px] text-slate-400 font-mono">Format PNG / Siap Digunakan</span>
+              </div>
             </div>
           </div>
-          <input type="hidden" id="claim-face-base64">
+
+          <div>
+            <input type="file" id="carrier-file-input" accept="image/*" class="hidden" onchange="onCarrierFileChange(this)">
+            <label for="carrier-file-input" class="w-full py-2.5 px-4 rounded-lg bg-slate-900 border border-slate-700 hover:border-willGold transition cursor-pointer text-xs text-center block text-slate-300">
+              <i data-lucide="upload" class="w-3.5 h-3.5 inline mr-1 text-willGold"></i>
+              Pilih Foto Lain dari Perangkat
+            </label>
+            <p class="text-[10px] text-slate-500 mt-1.5 text-center">
+              Gunakan foto lanskap atau keluarga yang berukuran wajar (min. 800x600 px).
+            </p>
+          </div>
         </div>
 
-        <button type="submit" id="btn-submit-claim" class="gold-btn w-full py-3 text-sm font-semibold">Buka Wasiat</button>
-      </form>
+        <!-- Formulir Pemilihan -->
+        <div class="will-card p-6 rounded-xl space-y-5">
+          <div class="flex items-center space-x-2 pb-2 border-b border-slate-700">
+            <i data-lucide="sliders" class="w-4 h-4 text-willGold"></i>
+            <h2 class="text-sm font-bold font-cinzel text-white">Pengaturan Kunci</h2>
+          </div>
 
-      <div id="claim-success-box" class="hidden mt-8 space-y-4">
-        <div class="p-3 bg-emerald-950/70 border border-emerald-700 rounded-lg text-sm text-emerald-200">
-          Verifikasi berhasil. Berikut wasiat untuk Anda:
+          <form id="access-key-form" onsubmit="handleGenerateAccessKey(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1" for="select-asset">1. Pilih Wasiat</label>
+              <select id="select-asset" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" onchange="onAssetSelected()">
+                <option value="">Memuat wasiat...</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1" for="select-beneficiary">2. Pilih Ahli Waris Penerima</label>
+              <select id="select-beneficiary" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold">
+                <option value="">Pilih wasiat terlebih dahulu</option>
+              </select>
+            </div>
+
+            <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-lg text-xs text-slate-400 leading-relaxed">
+              Kunci akses akan disematkan secara rahasia ke dalam foto di samping. Foto tetap terlihat seperti foto biasa dan dapat diberikan kepada ahli waris untuk proses klaim.
+            </div>
+
+            <button type="submit" id="btn-generate-key" class="gold-btn w-full py-2.5 text-xs font-semibold">
+              <i data-lucide="key" class="w-4 h-4"></i>
+              <span>Sisipkan Kunci ke Foto</span>
+            </button>
+          </form>
+
+          <div id="key-result-box" class="hidden p-4 rounded-xl bg-emerald-950/60 border border-emerald-800 space-y-2">
+            <div class="flex items-center space-x-2 text-emerald-400 font-semibold text-xs">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              <span>Kartu Akses Berhasil Dibuat!</span>
+            </div>
+            <p class="text-[11px] text-slate-300">
+              Kunci telah disematkan. Klik tombol di bawah untuk mengunduh gambar kartu akses.
+            </p>
+            <a id="download-key-btn" href="#" download class="gold-btn w-full py-2 text-xs font-semibold text-center block mt-2">
+              Unduh Kartu Akses (.png)
+            </a>
+          </div>
         </div>
-        <div id="decrypted-assets-container" class="space-y-4"></div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500 mt-auto">
+      &copy; 2026 WARISCRYPT &bull; Wasiat Digital Aman
+    </footer>
   </main>
 
-  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
-
   <script src="js/config.js"></script>
-  <script src="js/nav.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/access-key.js"></script>
 </body>
 </html>

@@ -1,144 +1,142 @@
-let claimCameraStream = null;
-const BTN_LABEL = 'Buka Wasiat';
+let availableAssets = [];
+let selectedCarrierFile = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN)) {
-    document.getElementById('guest-notice').classList.remove('hidden');
-  }
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.requireAuth && !window.requireAuth('owner')) return;
+  await loadAssetsForAccessKey();
+  if (window.lucide) lucide.createIcons();
 });
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 function showAlert(msg, isError = false) {
-  const el = document.getElementById('claim-alert');
-  el.className = `mb-5 p-3 rounded text-sm ${isError ? 'bg-rose-950/80 border border-rose-800 text-rose-200' : 'bg-emerald-950/80 border border-emerald-800 text-emerald-200'}`;
+  const el = document.getElementById('access-alert');
+  el.className = `p-3 rounded-lg text-xs leading-relaxed ${
+    isError
+      ? 'bg-rose-950/80 border border-rose-800 text-rose-200'
+      : 'bg-emerald-950/80 border border-emerald-800 text-emerald-200'
+  }`;
   el.textContent = msg;
   el.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function onStegoFileSelected(input) {
-  if (input.files && input.files[0]) {
-    document.getElementById('stego-file-label').textContent = `Dipilih: ${input.files[0].name}`;
-  }
-}
-
-async function startClaimCamera() {
+async function loadAssetsForAccessKey() {
+  const selectAsset = document.getElementById('select-asset');
   try {
-    claimCameraStream = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 360 } });
-    document.getElementById('claim-video').srcObject = claimCameraStream;
-    document.getElementById('claim-cam-overlay').classList.add('hidden');
+    const res = await apiFetch('/assets/');
+    if (!res.ok) throw new Error('Gagal memuat daftar wasiat');
+    availableAssets = await res.json();
+
+    if (availableAssets.length === 0) {
+      selectAsset.innerHTML = '<option value="">Belum ada wasiat. Buat wasiat terlebih dahulu.</option>';
+      return;
+    }
+
+    selectAsset.innerHTML = '<option value="">-- Pilih Wasiat --</option>' +
+      availableAssets.map(a => {
+        const hasMsg = Boolean(a.has_message || a.asset_type === 'message');
+        const hasDoc = Boolean(a.has_document || (a.asset_type === 'document' && a.original_filename));
+        const typeStr = hasMsg && hasDoc ? 'Pesan & Berkas' : (hasDoc ? 'Dokumen' : 'Pesan');
+        return `<option value="${a.asset_id}">${esc(a.asset_name)} (${typeStr})</option>`;
+      }).join('');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedId = urlParams.get('asset_id');
+    if (preselectedId) {
+      selectAsset.value = preselectedId;
+      onAssetSelected();
+    }
   } catch (err) {
-    showAlert('Kamera tidak dapat diakses: ' + err.message, true);
+    showAlert(err.message, true);
   }
 }
 
-function captureClaimFace() {
-  const video = document.getElementById('claim-video');
-  const canvas = document.getElementById('claim-canvas');
-  if (!video.videoWidth) {
-    showAlert('Nyalakan kamera terlebih dahulu.', true);
+function onAssetSelected() {
+  const selectAsset = document.getElementById('select-asset');
+  const selectBen = document.getElementById('select-beneficiary');
+  const assetId = selectAsset.value;
+
+  if (!assetId) {
+    selectBen.innerHTML = '<option value="">Pilih wasiat terlebih dahulu</option>';
     return;
   }
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-  document.getElementById('claim-face-base64').value = canvas.toDataURL('image/jpeg', 0.85);
-  document.getElementById('face-captured-indicator').classList.remove('hidden');
+
+  const asset = availableAssets.find(a => String(a.asset_id) === String(assetId));
+  if (!asset || !asset.permissions || asset.permissions.length === 0) {
+    selectBen.innerHTML = '<option value="">Tidak ada ahli waris pada wasiat ini</option>';
+    return;
+  }
+
+  selectBen.innerHTML = asset.permissions.map(p =>
+    `<option value="${p.beneficiary_id}">${esc(p.beneficiary_name)} (${p.release_status === 'released' ? 'Siap Diklaim' : 'Terkunci'})</option>`
+  ).join('');
 }
 
-async function handleClaimSubmission(e) {
+function onCarrierFileChange(input) {
+  if (input.files && input.files[0]) {
+    selectedCarrierFile = input.files[0];
+    document.getElementById('carrier-filename-label').textContent = selectedCarrierFile.name;
+    document.getElementById('carrier-status-tag').textContent = `${(selectedCarrierFile.size / (1024 * 1024)).toFixed(2)} MB &bull; Loaded`;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('carrier-preview-image').src = e.target.result;
+    };
+    reader.readAsDataURL(selectedCarrierFile);
+  }
+}
+
+async function handleGenerateAccessKey(e) {
   e.preventDefault();
-  document.getElementById('claim-alert').classList.add('hidden');
+  document.getElementById('access-alert').classList.add('hidden');
+  document.getElementById('key-result-box').classList.add('hidden');
 
-  const token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
-  if (!token) {
-    window.location.href = 'sign-in.html';
+  const assetId = document.getElementById('select-asset').value;
+  const beneficiaryId = document.getElementById('select-beneficiary').value;
+
+  if (!assetId || !beneficiaryId) {
+    showAlert('Silakan pilih wasiat dan ahli waris terlebih dahulu.', true);
     return;
   }
 
-  const btn = document.getElementById('btn-submit-claim');
-  const stegoInput = document.getElementById('claim-stego-file');
-  const faceBase64 = document.getElementById('claim-face-base64').value;
-  const faceFile = document.getElementById('claim-face-file');
+  const btn = document.getElementById('btn-generate-key');
+  btn.disabled = true;
+  btn.innerHTML = `Menyematkan Kunci...`;
 
   const formData = new FormData();
-  formData.append('stego_image', stegoInput.files[0]);
-  if (faceFile.files && faceFile.files[0]) {
-    formData.append('face_image', faceFile.files[0]);
-  } else if (faceBase64) {
-    formData.append('face_image_base64', faceBase64);
-  } else {
-    showAlert('Ambil foto wajah atau unggah foto terlebih dahulu.', true);
-    return;
+  formData.append('beneficiary_id', beneficiaryId);
+  if (selectedCarrierFile) {
+    formData.append('photo', selectedCarrierFile);
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Memverifikasi...';
+  const token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
   try {
-    const res = await fetch(`${CONFIG.API_BASE_URL}/claims/verify-and-claim`, {
+    const res = await fetch(`${CONFIG.API_BASE_URL}/assets/${assetId}/access-key`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     });
+
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Klaim gagal diproses');
-    if (data.status === 'rejected') {
-      showAlert('Verifikasi wajah tidak cocok. Silakan coba lagi dengan foto yang lebih jelas.', true);
-      return;
-    }
-    showClaimSuccess(data);
+    if (!res.ok) throw new Error(data.detail || 'Gagal membuat kartu akses');
+
+    const downloadBtn = document.getElementById('download-key-btn');
+    downloadBtn.href = data.download_url;
+    downloadBtn.download = data.filename || 'kartu_akses.png';
+
+    const resultBox = document.getElementById('key-result-box');
+    resultBox.classList.remove('hidden');
+    resultBox.scrollIntoView({ behavior: 'smooth' });
+    showAlert('Kunci rahasia berhasil disematkan ke dalam foto!');
+    if (window.lucide) lucide.createIcons();
   } catch (err) {
     showAlert(err.message, true);
   } finally {
     btn.disabled = false;
-    btn.textContent = BTN_LABEL;
+    btn.innerHTML = `<i data-lucide="key" class="w-4 h-4 mr-1.5 inline"></i><span>Sisipkan Kunci ke Foto</span>`;
+    if (window.lucide) lucide.createIcons();
   }
 }
 
-async function downloadDocument(url, filename) {
-  const token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
-  const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-  if (!res.ok) {
-    showAlert('Gagal mengunduh dokumen.', true);
-    return;
-  }
-  const blob = await res.blob();
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename || 'dokumen';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-function showClaimSuccess(data) {
-  const container = document.getElementById('decrypted-assets-container');
-  container.innerHTML = (data.released_assets || []).map(a => {
-    if (a.asset_type === 'message') {
-      return `
-        <div class="p-5 bg-slate-900 border border-willGold/40 rounded-lg">
-          <div class="font-semibold text-willGold mb-2">${esc(a.asset_name)}</div>
-          <div class="p-4 bg-black/50 rounded border border-slate-800 text-sm whitespace-pre-line leading-relaxed">${esc(a.decrypted_content)}</div>
-        </div>`;
-    }
-    return `
-      <div class="p-5 bg-slate-900 border border-willGold/40 rounded-lg">
-        <div class="font-semibold text-willGold mb-1">${esc(a.asset_name)}</div>
-        <div class="text-sm text-slate-300 mb-3">${esc(a.original_filename || 'Dokumen')}</div>
-        <button type="button" onclick="downloadDocument('${CONFIG.API_BASE_URL.replace('/api', '')}${a.download_url}', '${esc(a.original_filename || 'dokumen')}')"
-          class="gold-btn px-4 py-2 text-sm font-semibold">Unduh Dokumen</button>
-      </div>`;
-  }).join('');
-
-  const box = document.getElementById('claim-success-box');
-  box.classList.remove('hidden');
-  box.scrollIntoView({ behavior: 'smooth' });
-}
-
-window.onStegoFileSelected = onStegoFileSelected;
-window.startClaimCamera = startClaimCamera;
-window.captureClaimFace = captureClaimFace;
-window.handleClaimSubmission = handleClaimSubmission;
-window.downloadDocument = downloadDocument;
+window.onAssetSelected = onAssetSelected;
+window.onCarrierFileChange = onCarrierFileChange;
+window.handleGenerateAccessKey = handleGenerateAccessKey;

@@ -29,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API routers
+# Browser harus selalu memuat file frontend terbaru
 @app.middleware("http")
 async def no_cache_static(request, call_next):
     response = await call_next(request)
@@ -37,6 +37,7 @@ async def no_cache_static(request, call_next):
         response.headers["Cache-Control"] = "no-store"
     return response
 
+# API routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(beneficiaries.router, prefix=settings.API_V1_STR)
 app.include_router(assets.router, prefix=settings.API_V1_STR)

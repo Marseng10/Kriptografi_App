@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaim Warisan - WARISCRYPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="css/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-active="claim" class="bg-ink-darker text-slate-200 min-h-screen">
+  <div id="shell"></div>
+
+  <!-- Main Content -->
+  <main class="app-main-content">
+    <div class="p-4 sm:p-8 max-w-2xl mx-auto w-full space-y-6 flex-1">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white mb-1">Klaim Warisan</h1>
+        <p class="text-xs md:text-sm text-slate-400">
+          Unggah kartu akses (gambar foto kenangan) dari pewaris untuk membuka dan membaca isi wasiat Anda.
+        </p>
+      </div>
+
+      <div id="guest-notice" class="hidden p-3.5 rounded-lg text-xs bg-amber-950/60 border border-amber-800 text-amber-200 leading-relaxed">
+        Anda perlu <a href="sign-in.html" class="underline font-semibold text-willGold">masuk</a> sebagai akun ahli waris terlebih dahulu agar dapat memverifikasi klaim.
+      </div>
+
+      <div id="claim-alert" class="hidden p-3.5 rounded-lg text-xs leading-relaxed"></div>
+
+      <div class="will-card rounded-xl p-6 md:p-8 space-y-6">
+        <form id="claim-form" onsubmit="handleClaimSubmission(event)" class="space-y-6">
+          
+          <!-- UNGGAH KARTU AKSES FOTO -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-2">Unggah Kartu Akses Foto (.png)</label>
+            <input type="file" id="claim-stego-file" accept="image/png" required class="hidden" onchange="onStegoFileSelected(this)">
+            <label for="claim-stego-file" class="block cursor-pointer border-2 border-dashed border-slate-700 hover:border-willGold rounded-xl p-8 text-center transition bg-slate-900/60">
+              <i data-lucide="image" class="w-10 h-10 text-willGold mx-auto mb-3"></i>
+              <span class="text-sm text-slate-200 font-medium block" id="stego-file-label">Klik untuk memilih kartu akses (.png)</span>
+              <span class="text-xs text-slate-400 mt-1 block">Foto kenangan keluarga yang Anda terima dari pewaris</span>
+              <img id="stego-img-preview" class="hidden max-h-48 mx-auto rounded-lg mt-4 border border-willGold/30 object-contain shadow-md" alt="Pratinjau Kartu">
+            </label>
+          </div>
+
+          <!-- Petunjuk Keamanan -->
+          <div class="p-3.5 bg-slate-900/80 border border-slate-800 rounded-lg text-xs text-slate-400 flex items-start space-x-2.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-willGold shrink-0 mt-0.5"></i>
+            <span>Sistem akan mengekstrak kunci rahasia dari piksel gambar secara otomatis dan mendekripsi wasiat jika hak akses telah diotorisasi.</span>
+          </div>
+
+          <!-- Tombol Buka Wasiat -->
+          <button type="submit" id="btn-submit-claim" class="gold-btn w-full py-3 text-xs font-semibold shadow-lg">
+            <i data-lucide="unlock" class="w-4 h-4"></i>
+            <span>Buka &amp; Dekripsi Wasiat Sekarang</span>
+          </button>
+        </form>
+
+        <!-- Hasil Terbuka -->
+        <div id="claim-success-box" class="hidden mt-8 pt-6 border-t border-slate-700 space-y-4">
+          <div class="p-4 bg-emerald-950/70 border border-emerald-700 rounded-lg text-xs text-emerald-200 flex items-center space-x-2">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+            <span>Kartu akses terverifikasi sah. Wasiat berhasil didekripsi:</span>
+          </div>
+          <div id="decrypted-assets-container" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500 mt-auto">
+      &copy; 2026 WARISCRYPT &bull; Wasiat Digital Aman
+    </footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/claim.js"></script>
+</body>
+</html>

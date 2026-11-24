@@ -3,100 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USB Security Key - WARISCRYPT</title>
+  <title>Kunci Flashdisk - WARISCRYPT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="css/tailwind-config.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col justify-between">
-  <!-- Nav -->
-  <div id="main-nav"></div>
+<body data-active="usb-setup" class="bg-ink-darker text-slate-200 min-h-screen">
+  <div id="shell"></div>
 
-  <main class="max-w-4xl mx-auto px-4 py-10 flex-1 w-full space-y-8">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-willGold/20 pb-6 gap-4">
-      <div>
-        <div class="flex items-center space-x-2">
-          <i data-lucide="usb" class="w-6 h-6 text-emerald-400"></i>
-          <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">USB Hardware Key Manager</h1>
+  <!-- Main Content -->
+  <main class="app-main-content">
+    <div class="p-4 sm:p-8 max-w-4xl mx-auto w-full space-y-6 flex-1">
+      <div class="flex items-center justify-between pb-4 border-b border-willGold/20 gap-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-willGold/15 border border-willGold/30 flex items-center justify-center text-willGold">
+            <i data-lucide="usb" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Kunci Bootable Flashdisk</h1>
+            <p class="text-xs md:text-sm text-slate-400 mt-0.5">
+              Jadikan Flashdisk fisik Anda sebagai kunci perangkat keras wajib untuk mengakses login WARISCRYPT.
+            </p>
+          </div>
         </div>
-        <p class="text-xs md:text-sm text-slate-400 mt-1">
-          Daftarkan flashdisk fisik sebagai kunci otorisasi lokal untuk USB Launcher aplikasi WARISCRYPT.
-        </p>
-      </div>
-    </div>
-
-    <!-- Alert Box -->
-    <div id="usb-alert" class="hidden p-4 rounded text-xs leading-relaxed"></div>
-
-    <!-- Register New USB Form -->
-    <div class="will-card p-6 md:p-8 rounded-xl space-y-4">
-      <h2 class="text-base font-bold font-cinzel text-willGold">Daftarkan Perangkat Flashdisk Baru</h2>
-      <p class="text-xs text-slate-400">
-        Sistem akan membuat berkas kunci unik <code class="text-willGold">wariscrypt.key</code> yang dapat Anda unduh dan letakkan di root flashdisk Anda.
-      </p>
-
-      <form id="usb-reg-form" onsubmit="handleRegisterUsb(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Label Perangkat</label>
-          <input type="text" id="usb-device-name" required value="Flashdisk Utama Pewaris" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-willGold">
-        </div>
-
-        <button type="submit" id="btn-reg-usb" class="gold-btn w-full py-2.5 text-xs font-bold flex items-center justify-center space-x-2">
-          <i data-lucide="key" class="w-4 h-4"></i>
-          <span>Buat & Unduh Kunci wariscrypt.key</span>
+        <button type="button" onclick="checkLiveUsbPort()" class="ghost-btn px-3 py-1.5 text-xs">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-willGold"></i>
+          <span>Cek Port USB</span>
         </button>
-      </form>
-    </div>
+      </div>
 
-    <!-- How to use Launcher instructions -->
-    <div class="p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
-      <h3 class="text-sm font-bold text-white font-cinzel flex items-center space-x-2">
-        <i data-lucide="help-circle" class="w-4 h-4 text-willGold"></i>
-        <span>Panduan Menjalankan USB Launcher Pendamping</span>
-      </h3>
-      <ol class="list-decimal list-inside text-xs text-slate-300 space-y-2 leading-relaxed">
-        <li>Unduh berkas <span class="font-mono text-willGold">wariscrypt.key</span> di atas.</li>
-        <li>Salin berkas tersebut langsung ke dalam flashdisk Anda (misal drive <code class="text-slate-100">E:\wariscrypt.key</code>).</li>
-        <li>Jalankan pendamping launcher di terminal / folder proyek:
-          <pre class="mt-1 p-2 bg-black rounded font-mono text-emerald-400 text-xs">python usb_launcher/usb_launcher.py</pre>
-        </li>
-        <li>Ketika flashdisk terdeteksi, launcher akan memverifikasi fingerprint ke API backend dan otomatis membuka browser web Anda ke portal WARISCRYPT!</li>
-      </ol>
-    </div>
+      <!-- Alert Box -->
+      <div id="usb-alert" class="hidden p-3.5 rounded-lg text-xs leading-relaxed"></div>
 
-    <!-- Registered Devices Table -->
-    <div class="will-card p-6 rounded-xl">
-      <h3 class="text-sm font-bold text-white font-cinzel mb-4">Daftar Perangkat USB Terdaftar</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead>
-            <tr class="text-slate-400 border-b border-slate-800">
-              <th class="py-2.5 px-3">Nama Perangkat</th>
-              <th class="py-2.5 px-3">Fingerprint Hash</th>
-              <th class="py-2.5 px-3">Status</th>
-              <th class="py-2.5 px-3">Terakhir Digunakan</th>
-              <th class="py-2.5 px-3 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="usb-devices-tbody" class="divide-y divide-slate-800">
-            <tr>
-              <td colspan="5" class="py-6 text-center text-slate-500">Memuat perangkat USB...</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Live Port USB Detection Card -->
+      <div id="live-usb-card" class="will-card p-5 rounded-xl border border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+          <div id="live-usb-icon-box" class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400">
+            <i data-lucide="usb" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span id="live-usb-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+              <h2 id="live-usb-title" class="text-sm font-bold font-cinzel text-white">Memindai Port USB Komputer...</h2>
+            </div>
+            <p id="live-usb-desc" class="text-xs text-slate-400 mt-0.5">
+              Mendeteksi perangkat Flashdisk yang tercolok secara otomatis.
+            </p>
+          </div>
+        </div>
+        <div id="live-usb-badge" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-400 self-start sm:self-center">
+          MEMINDAI...
+        </div>
+      </div>
+
+      <!-- Register & Direct Bootable Write Form -->
+      <div class="will-card p-6 md:p-8 rounded-xl space-y-4">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="key" class="w-4 h-4 text-willGold"></i>
+          <h2 class="text-base font-bold font-cinzel text-willGold">Pasang Kunci Bootable ke Flashdisk</h2>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Sistem akan otomatis memasang berkas kunci <code class="text-willGold font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700">wariscrypt.key</code> dan peluncur bootable <code class="text-willGold font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700">Boot_WARISCRYPT.bat</code> langsung ke dalam Flashdisk yang sedang tercolok di port USB Anda.
+        </p>
+
+        <form id="usb-reg-form" onsubmit="handleRegisterUsb(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Label Kunci Flashdisk</label>
+            <input type="text" id="usb-device-name" required value="Flashdisk Bootable Utama" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-willGold">
+          </div>
+
+          <button type="submit" id="btn-reg-usb" class="gold-btn w-full py-3 text-xs font-bold flex items-center justify-center space-x-2">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            <span id="btn-reg-usb-text">Buat &amp; Pasang Kunci Bootable Langsung ke Flashdisk</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Table Perangkat -->
+      <div class="will-card p-6 rounded-xl space-y-4">
+        <div class="flex items-center space-x-2 pb-2 border-b border-slate-700">
+          <i data-lucide="hard-drive" class="w-4 h-4 text-willGold"></i>
+          <h2 class="text-sm font-bold font-cinzel text-white">Daftar Flashdisk Terdaftar pada Akun Ini</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 font-mono">
+                <th class="py-2.5 px-3">Nama Perangkat</th>
+                <th class="py-2.5 px-3">Sidik Kunci</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3">Terakhir Digunakan</th>
+                <th class="py-2.5 px-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="usb-devices-tbody" class="divide-y divide-slate-800">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-500">Memuat data flashdisk...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Panduan -->
+      <div class="p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
+        <div class="flex items-center space-x-2 text-willGold font-cinzel font-bold text-sm">
+          <i data-lucide="help-circle" class="w-4 h-4"></i>
+          <span>Cara Kerja Akses Bootable Flashdisk</span>
+        </div>
+        <ol class="list-decimal list-inside text-xs text-slate-300 space-y-2 leading-relaxed">
+          <li><strong>Colokkan Flashdisk</strong> ke port USB komputer Anda, lalu klik tombol <span class="text-willGold font-semibold">"Buat &amp; Pasang Kunci Bootable Langsung ke Flashdisk"</span> di atas.</li>
+          <li>Sistem otomatis menuliskan berkas <span class="font-mono text-willGold">wariscrypt.key</span> dan <span class="font-mono text-willGold">Boot_WARISCRYPT.bat</span> ke dalam Flashdisk Anda.</li>
+          <li><strong>Saat Halaman Login dibuka</strong>: Jika Flashdisk tidak dicolokkan, halaman login akan <strong>terkunci otomatis</strong>.</li>
+          <li>Saat Flashdisk dicolokkan, halaman login akan terbuka dan menampilkan tombol <strong>"Boot &amp; Masuk Langsung via Flashdisk"</strong> (1-Klik Login) atau mengizinkan login menggunakan password/wajah Anda.</li>
+        </ol>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500 mt-auto">
+      &copy; 2026 WARISCRYPT &bull; Wasiat Digital Aman
+    </footer>
   </main>
 
-  <footer class="py-4 bg-ink-darker border-t border-slate-800 text-center text-xs text-slate-600">
-    &copy; 2026 WARISCRYPT &bull; Secure Digital Inheritance System
-  </footer>
-
   <script src="js/config.js"></script>
-  <script src="js/nav.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/usb-setup.js"></script>
-  <script>lucide.createIcons();</script>
 </body>
 </html>

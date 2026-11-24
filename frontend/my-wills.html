@@ -3,66 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wasiat & Ahli Waris - WARISCRYPT</title>
+  <title>Wasiat &amp; Ahli Waris - WARISCRYPT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="css/tailwind-config.js"></script>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-ink-darker text-slate-200 min-h-screen flex flex-col">
-  <div id="main-nav"></div>
+<body data-active="my-wills" class="bg-ink-darker text-slate-200 min-h-screen">
+  <div id="shell"></div>
 
-  <main class="max-w-5xl mx-auto px-4 py-10 flex-1 w-full space-y-10">
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Wasiat & Ahli Waris</h1>
-      <a href="create-will.html" class="gold-btn px-4 py-2 text-sm font-semibold">+ Tulis Wasiat</a>
-    </div>
+  <!-- Main Content -->
+  <main class="app-main-content">
+    <div class="p-4 sm:p-8 max-w-5xl mx-auto w-full space-y-8 flex-1">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-willGold/20 gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold font-cinzel text-white">Wasiat &amp; Ahli Waris</h1>
+          <p class="text-xs md:text-sm text-slate-400 mt-1">
+            Kelola wasiat Anda, tentukan izin rilis pembukaan, dan atur daftar penerima.
+          </p>
+        </div>
 
-    <div id="wills-alert" class="hidden p-3 rounded text-sm"></div>
-
-    <!-- Wasiat -->
-    <section>
-      <h2 class="text-lg font-bold font-cinzel text-willGold mb-3">Daftar Wasiat</h2>
-      <div id="assets-list" class="space-y-4">
-        <div class="will-card p-6 rounded-lg text-sm text-slate-500">Memuat...</div>
-      </div>
-    </section>
-
-    <!-- Ahli waris -->
-    <section class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="will-card p-6 rounded-lg lg:col-span-2">
-        <h2 class="text-lg font-bold font-cinzel text-willGold mb-4">Tambah Ahli Waris</h2>
-        <form id="add-ben-form" onsubmit="handleAddBeneficiary(event)" class="space-y-4">
-          <div>
-            <label class="block text-sm text-slate-200 mb-1">Username atau Email</label>
-            <input type="text" id="ben-identifier" required class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-willGold" placeholder="ahliwaris">
-            <span class="text-xs text-slate-500">Ahli waris harus sudah punya akun.</span>
-          </div>
-          <div>
-            <label class="block text-sm text-slate-200 mb-1">Hubungan</label>
-            <input type="text" id="ben-relation" class="w-full bg-slate-900/80 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-willGold" placeholder="Anak, Istri, Saudara...">
-          </div>
-          <div>
-            <label class="block text-sm text-slate-200 mb-1">Foto Wajah Ahli Waris</label>
-            <input type="file" id="ben-face-file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200">
-            <span class="text-xs text-slate-500">Dipakai untuk memastikan penerima adalah orang yang tepat.</span>
-          </div>
-          <button type="submit" id="btn-add-ben" class="gold-btn w-full py-2.5 text-sm font-semibold">Tambah</button>
-        </form>
-      </div>
-
-      <div class="will-card p-6 rounded-lg lg:col-span-3">
-        <h2 class="text-lg font-bold font-cinzel text-willGold mb-4">Daftar Ahli Waris</h2>
-        <div id="beneficiaries-list" class="space-y-3">
-          <div class="text-sm text-slate-500">Memuat...</div>
+        <div class="flex items-center space-x-2">
+          <a href="create-will.html" class="gold-btn px-4 py-2 text-xs font-semibold">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tulis Wasiat Baru</span>
+          </a>
         </div>
       </div>
-    </section>
+
+      <!-- Alert Box -->
+      <div id="wills-alert" class="hidden p-3.5 rounded-lg text-xs leading-relaxed"></div>
+
+      <!-- DAFTAR WASIAT -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="folder" class="w-4 h-4 text-willGold"></i>
+            <h2 class="text-base font-bold font-cinzel text-white">Daftar Wasiat Tersimpan</h2>
+          </div>
+          <div class="flex items-center space-x-2 text-xs">
+            <button id="filter-all" onclick="setFilter('all')" class="px-3 py-1 rounded bg-willGold text-ink-dark font-medium transition">Semua</button>
+            <button id="filter-released" onclick="setFilter('released')" class="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition">Siap Diklaim</button>
+            <button id="filter-locked" onclick="setFilter('locked')" class="px-3 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition">Terkunci</button>
+          </div>
+        </div>
+
+        <div id="assets-list" class="space-y-3">
+          <div class="will-card p-6 text-center text-xs text-slate-400">Memuat wasiat...</div>
+        </div>
+      </div>
+
+      <!-- DAFTAR AHLI WARIS & TAMBAH AHLI WARIS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+        
+        <!-- List Ahli Waris -->
+        <div class="space-y-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="users" class="w-4 h-4 text-willGold"></i>
+            <h2 class="text-base font-bold font-cinzel text-white">Daftar Ahli Waris</h2>
+          </div>
+          <div id="beneficiaries-list" class="space-y-2">
+            <div class="will-card p-4 text-center text-xs text-slate-500">Memuat ahli waris...</div>
+          </div>
+        </div>
+
+        <!-- Form Tambah Ahli Waris -->
+        <div class="will-card p-6 rounded-xl space-y-4">
+          <div class="flex items-center space-x-2 pb-2 border-b border-slate-700">
+            <i data-lucide="user-plus" class="w-4 h-4 text-willGold"></i>
+            <h2 class="text-sm font-bold font-cinzel text-white">Tambah Ahli Waris Baru</h2>
+          </div>
+
+          <form id="form-add-ben" onsubmit="handleAddBeneficiary(event)" class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Username atau Email Akun</label>
+              <input type="text" id="modal-ben-username" required class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="ahliwaris">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Hubungan Keluarga</label>
+              <input type="text" id="modal-ben-relationship" required class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-willGold" placeholder="Anak Kandung, Istri, dll.">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Foto Wajah Rujukan (Opsional)</label>
+              <input type="file" id="modal-ben-photo" accept="image/*" class="text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200">
+              <span class="text-[10px] text-slate-500">Digunakan untuk verifikasi biometrik saat klaim.</span>
+            </div>
+
+            <button type="submit" id="btn-submit-ben" class="gold-btn w-full py-2.5 text-xs font-semibold mt-2">
+              Simpan Ahli Waris
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500 mt-auto">
+      &copy; 2026 WARISCRYPT &bull; Wasiat Digital Aman
+    </footer>
   </main>
 
-  <footer class="py-6 border-t border-slate-800 text-center text-xs text-slate-500">&copy; 2026 WARISCRYPT</footer>
-
   <script src="js/config.js"></script>
-  <script src="js/nav.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/my-wills.js"></script>
 </body>
 </html>

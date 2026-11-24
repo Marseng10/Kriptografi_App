@@ -127,6 +127,42 @@ def register_user(payload: UserCreate, db: Session = Depends(get_db)):
         }
     }
 
+def enforce_usb_requirement(user: User, db: Session):
+    """
+    Pastikan Flashdisk fisik sedang tercolok di port USB saat login.
+    Jika akun sudah memiliki kunci Flashdisk terdaftar, pastikan wariscrypt.key di Flashdisk cocok.
+    """
+    from .usb import scan_plugged_usb_drives
+    from ..models import UsbDevice
+
+    usb_state = scan_plugged_usb_drives(db)
+    if not usb_state["usb_plugged"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Akses Login Ditolak: Flashdisk wajib dicolokkan ke port USB komputer untuk dapat login!"
+        )
+
+    user_devices = db.query(UsbDevice).filter(
+        UsbDevice.user_id == user.user_id,
+        UsbDevice.device_status == "active"
+    ).all()
+
+    if user_devices:
+        user_device_ids = {d.device_id for d in user_devices}
+        matched_drive = next(
+            (dr for dr in usb_state.get("drives", []) if dr.get("verified") and dr.get("device_id") in user_device_ids),
+            None
+        )
+        if not matched_drive:
+            raise HTTPException(
+                status_code=403,
+                detail="Akses Login Ditolak: Akun Anda telah dikunci dengan Flashdisk khusus, namun berkas wariscrypt.key yang sesuai tidak ditemukan di Flashdisk yang tercolok!"
+            )
+        matched_dev = next((d for d in user_devices if d.device_id == matched_drive["device_id"]), None)
+        if matched_dev:
+            matched_dev.last_used_at = utc_now()
+
+
 @router.post("/login", response_model=TokenResponse)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(
@@ -144,6 +180,9 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         
     if user.account_status != "active":
         raise HTTPException(status_code=403, detail="Akun dinonaktifkan atau disuspend")
+
+    # Wajib ada Flashdisk yang tercolok (& cocok jika sudah setup kunci)
+    enforce_usb_requirement(user, db)
         
     user.last_login_at = utc_now()
     db.commit()
@@ -181,6 +220,9 @@ def face_login(payload: FaceLoginRequest, db: Session = Depends(get_db)):
     
     if not user:
         raise HTTPException(status_code=404, detail="Pengguna tidak ditemukan")
+
+    # Wajib ada Flashdisk yang tercolok (& cocok jika sudah setup kunci)
+    enforce_usb_requirement(user, db)
         
     # Get active biometric template
     biometric = db.query(BiometricTemplate).filter(
